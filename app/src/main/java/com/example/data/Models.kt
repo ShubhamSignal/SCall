@@ -78,6 +78,16 @@ data class Wallet(
     val lifetimePaise: Long = 0L
 )
 
+data class WalletTransaction(
+    @DocumentId val id: String = "",
+    val userId: String = "",
+    val type: String = "credit", // "credit" or "debit"
+    val title: String = "",
+    val amountPaise: Long = 0L,
+    val timestamp: Timestamp? = null,
+    val status: String = "success"
+)
+
 data class BankAccount(
     @DocumentId val userId: String = "",
     val accountHolderName: String = "",

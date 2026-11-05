@@ -2,6 +2,8 @@ package com.example.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -15,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.WalletTransaction
 import com.example.viewmodel.SClabViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,6 +28,7 @@ fun WalletScreen(
     onNavigateBank: () -> Unit
 ) {
     val wallet by viewModel.wallet.collectAsState()
+    val transactions by viewModel.walletTransactions.collectAsState()
     val balanceRupees = wallet.balancePaise / 100.0
     val lifetimeRupees = wallet.lifetimePaise / 100.0
 
@@ -45,8 +49,7 @@ fun WalletScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
-                .padding(20.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Balance Card
@@ -61,12 +64,12 @@ fun WalletScreen(
                 ) {
                     Text("Available Balance", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
                     Text("₹%.2f".format(balanceRupees), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text("Lifetime Earnings: ₹%.2f".format(lifetimeRupees), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f))
                 }
             }
 
-            // Withdrawal notice notice
+            // Withdrawal notice
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -95,6 +98,66 @@ fun WalletScreen(
             ) {
                 Text("Manage Bank Details & Payouts", fontWeight = FontWeight.Bold)
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Transaction History",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            if (transactions.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No transactions recorded yet.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(transactions) { tx ->
+                        TransactionItemCard(tx = tx)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TransactionItemCard(tx: WalletTransaction) {
+    val amountRupees = tx.amountPaise / 100.0
+    val isCredit = tx.type == "credit"
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = tx.title.ifBlank { "Call Earning" }, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
+                Text(text = tx.status.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+            }
+            Text(
+                text = (if (isCredit) "+ " else "- ") + "₹%.2f".format(amountRupees),
+                fontWeight = FontWeight.Bold,
+                color = if (isCredit) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }

@@ -45,6 +45,9 @@ class SClabViewModel(application: Application) : AndroidViewModel(application) {
     private val _publicProfiles = MutableStateFlow<List<PublicProfile>>(emptyList())
     val publicProfiles: StateFlow<List<PublicProfile>> = _publicProfiles.asStateFlow()
 
+    private val _walletTransactions = MutableStateFlow<List<WalletTransaction>>(emptyList())
+    val walletTransactions: StateFlow<List<WalletTransaction>> = _walletTransactions.asStateFlow()
+
     init {
         checkCurrentUser()
     }
@@ -76,8 +79,16 @@ class SClabViewModel(application: Application) : AndroidViewModel(application) {
                 val w = repository.getWallet(uid)
                 _wallet.value = w
 
-                repository.observePublicProfiles().collect { list ->
-                    _publicProfiles.value = list
+                viewModelScope.launch {
+                    repository.observePublicProfiles().collect { list ->
+                        _publicProfiles.value = list
+                    }
+                }
+
+                viewModelScope.launch {
+                    repository.observeWalletTransactions(uid).collect { txs ->
+                        _walletTransactions.value = txs
+                    }
                 }
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.localizedMessage ?: "Failed to load user data")

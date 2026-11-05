@@ -9,6 +9,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -97,6 +98,22 @@ class SClabRepository(private val context: Context) {
     suspend fun getWallet(userId: String): Wallet {
         val doc = db.collection("wallets").document(userId).get().await()
         return doc.toObject(Wallet::class.java) ?: Wallet(userId = userId, balancePaise = 0L, pendingPaise = 0L, lifetimePaise = 0L)
+    }
+
+    fun observeWalletTransactions(userId: String): Flow<List<WalletTransaction>> = callbackFlow {
+        val listener = db.collection("wallets").document(userId).collection("transactions")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val list = snapshot.documents.mapNotNull { it.toObject(WalletTransaction::class.java) }
+                    trySend(list)
+                }
+            }
+        awaitClose { listener.remove() }
     }
 
     fun observePublicProfiles(): Flow<List<PublicProfile>> = callbackFlow {
