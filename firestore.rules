@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    match /publicProfiles/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    match /founderMembership/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // managed via transactions / secure client rules or server
+    }
+
+    match /memberships/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    match /paymentOrders/{orderId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /conversations/{conversationId} {
+      allow read, write: if isAuthenticated();
+      
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    match /calls/{callId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /earningLedger/{ledgerId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /wallets/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    match /bankAccounts/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    match /withdrawalRequests/{requestId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /userReports/{reportId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /blocks/{blockId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /adminAuditLogs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /appConfiguration/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "entities": {
+    "User": {
+      "path": "users/{userId}",
+      "schema": {
+        "userId": "string",
+        "fullName": "string",
+        "gender": "string",
+        "dob": "string",
+        "email": "string",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "PublicProfile": {
+      "path": "publicProfiles/{userId}",
+      "schema": {
+        "userId": "string",
+        "displayName": "string",
+        "gender": "string",
+        "age": "number",
+        "profilePicture": "string",
+        "availableForCall": "boolean",
+        "earningRate": "number"
+      }
+    },
+    "FounderMembership": {
+      "path": "founderMembership/global",
+      "schema": {
+        "userId": "string",
+        "assignedAt": "timestamp"
+      }
+    },
+    "Membership": {
+      "path": "memberships/{userId}",
+      "schema": {
+        "userId": "string",
+        "tier": "string",
+        "status": "string",
+        "activatedAt": "timestamp"
+      }
+    },
+    "Conversation": {
+      "path": "conversations/{conversationId}",
+      "schema": {
+        "participants": "list",
+        "lastMessage": "string",
+        "updatedAt": "timestamp"
+      }
+    },
+    "Message": {
+      "path": "conversations/{conversationId}/messages/{messageId}",
+      "schema": {
+        "senderId": "string",
+        "text": "string",
+        "timestamp": "timestamp",
+        "readStatus": "boolean"
+      }
+    },
+    "Call": {
+      "path": "calls/{callId}",
+      "schema": {
+        "callerId": "string",
+        "calleeId": "string",
+        "status": "string",
+        "startTime": "timestamp",
+        "endTime": "timestamp",
+        "durationSeconds": "number"
+      }
+    },
+    "Wallet": {
+      "path": "wallets/{userId}",
+      "schema": {
+        "userId": "string",
+        "balancePaise": "number",
+        "pendingPaise": "number",
+        "lifetimePaise": "number"
+      }
+    },
+    "BankAccount": {
+      "path": "bankAccounts/{userId}",
+      "schema": {
+        "userId": "string",
+        "accountHolderName": "string",
+        "bankName": "string",
+        "accountNumber": "string",
+        "ifscCode": "string",
+        "status": "string",
+        "submittedAt": "timestamp"
+      }
+    },
+    "WithdrawalRequest": {
+      "path": "withdrawalRequests/{requestId}",
+      "schema": {
+        "userId": "string",
+        "amountPaise": "number",
+        "status": "string",
+        "requestedAt": "timestamp"
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "SClab",
+  "description": "SClab Communication & Calling App with secure real-time chat, WebRTC audio/video calls, wallet, and founder free membership",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
